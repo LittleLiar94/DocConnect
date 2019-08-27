@@ -12,10 +12,12 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.docconnect.Adapter.MyLaborAdapter;
 import com.example.docconnect.Common.Common;
 import com.example.docconnect.Common.SpacesItemDecoration;
 import com.example.docconnect.Interface.IAllPremisesInfoLoadListener;
 import com.example.docconnect.Interface.IAllServicesLoadListener;
+import com.example.docconnect.Model.Labor;
 import com.example.docconnect.Model.Premise;
 import com.example.docconnect.Model.Service;
 import com.example.docconnect.R;
@@ -30,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +57,8 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
 
     @BindView(R.id.recycler_review)
     RecyclerView recycler_review;
-
+    @BindView(R.id.recycler_labor)
+    RecyclerView recycler_labor;
     @BindView(R.id.tv_title)
     TextView tv_title;
     @BindView(R.id.tv_description)
@@ -90,13 +94,18 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
 
                 iAllPremisesInfoLoadListener.onAllPremisesInfoLoadSuccess((Premise) permiseInfo);
             }
+            else if (Common.KEY_LABOR_LOAD_DONE.equals(intent.getAction())){
+                ArrayList<Labor> laborArrayList = intent.getParcelableArrayListExtra(Common.KEY_LABOR_LOAD_DONE);
+                // Create review adapter here
+                MyLaborAdapter adapter = new MyLaborAdapter(getContext(),laborArrayList);
+                recycler_labor.setAdapter(adapter);
+
+            }
 
             // Create review adapter here
 //            MyBarberAdapter adapter = new MyBarberAdapter(getContext(),barberArrayList);
 //            recycler_review.setAdapter(adapter);
 //            tv_title.setText(permiseInfo.getName());
-
-
 
         }
     };
@@ -114,6 +123,7 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
         localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
         localBroadcastManager.registerReceiver(serviceLoadDoneReceiver, new IntentFilter(Common.KEY_SERVICE_LOAD_DONE));
         localBroadcastManager.registerReceiver(serviceLoadDoneReceiver, new IntentFilter(Common.KEY_INFO_LOAD_DONE));
+        localBroadcastManager.registerReceiver(serviceLoadDoneReceiver, new IntentFilter(Common.KEY_LABOR_LOAD_DONE));
 
         iAllServicesLoadListener = this;
         iAllPremisesInfoLoadListener = this;
@@ -134,9 +144,9 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
     private void initView()
     {
 
-        recycler_review.setHasFixedSize(true);
-        recycler_review.setLayoutManager(new GridLayoutManager(getActivity(),2));
-        recycler_review.addItemDecoration(new SpacesItemDecoration(4));
+        recycler_labor.setHasFixedSize(true);
+        recycler_labor.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false));
+        recycler_labor.addItemDecoration(new SpacesItemDecoration(4));
 
     }
 
@@ -193,9 +203,6 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
         tv_rating.setText(premiseInfo.getRating().toString());
         tv_ratingTimes.setText("("+premiseInfo.getRatingTimes().toString()+")");
         rating_premise.setRating((float)premiseInfo.getRating() / premiseInfo.getRatingTimes() );
-
-        Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-        localBroadcastManager.sendBroadcast(intent);
 
     }
 

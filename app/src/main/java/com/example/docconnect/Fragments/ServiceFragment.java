@@ -31,6 +31,7 @@ import com.example.docconnect.Adapter.MyViewPagerAdapter;
 import com.example.docconnect.Common.Common;
 import com.example.docconnect.Common.NonSwipeViewPager;
 import com.example.docconnect.Interface.IAllPremisesLoadListener;
+import com.example.docconnect.Model.Labor;
 import com.example.docconnect.Model.Premise;
 import com.example.docconnect.Model.Service;
 import com.example.docconnect.Model.User;
@@ -59,7 +60,7 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
     Unbinder unbinder;
     LocalBroadcastManager localBroadcastManager;
     AlertDialog dialog;
-    CollectionReference premiseServiceRef, allPremisesRef;
+    CollectionReference premiseServiceRef, premiseLaborRef, allPremisesRef;
     DocumentReference premiseInfoRef;
 
     IAllPremisesLoadListener iAllPremisesLoadListener;
@@ -99,6 +100,7 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
                 if(Common.currentPremise != null)
                     loadSelectedPremiseServices(Common.currentPremise.getPremiseId());
                     loadSelectedPremiseInfo(Common.currentPremise.getPremiseId());
+                    loadSelectedPremiseLabor(Common.currentPremise.getPremiseId());
 
             }
             else if(Common.step == 2) { // Pick time slot
@@ -197,11 +199,57 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
         }
     }
 
+    private void loadSelectedPremiseLabor(String premiseId) {
+        dialog.show();
+
+        // If the a premise is selected in step1, load all the info of that particular premise.
+        if(!TextUtils.isEmpty(Common.premise)){
+
+            premiseLaborRef = FirebaseFirestore.getInstance()
+                    .collection("AllPremises")
+                    .document(premiseId)
+                    .collection("AllLabors");
+
+            // Get all the services available in premiseId
+            premiseLaborRef
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            List<Labor> labors = new ArrayList<>();
+                            for(QueryDocumentSnapshot laborSnapShot:task.getResult()) {
+                                Labor labor = laborSnapShot.toObject(Labor.class);
+                                labor.setLaborId(laborSnapShot.getId()); // Get laborId
+                                labors.add(labor);
+                            }
+
+                            // Send Broadcast to Bookingstep2Fragment to load Recycler
+                            Intent intent = new Intent(Common.KEY_LABOR_LOAD_DONE);
+                            intent.putParcelableArrayListExtra(Common.KEY_LABOR_LOAD_DONE, (ArrayList<? extends Parcelable>) labors);
+                            localBroadcastManager.sendBroadcast(intent);
+                            dialog.dismiss();
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dialog.dismiss();
+                        }
+                    });
+        }
+    }
     //Broadcast Receiver
     private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Common.currentPremise = intent.getParcelableExtra(Common.KEY_PREMISE_SAVE);
+
+            int step = intent.getIntExtra(Common.KEY_STEP,0);
+            if (step == 1)
+                Common.currentPremise = intent.getParcelableExtra(Common.KEY_PREMISE_SELECTED);
+            else if (step == 2)
+                Common.currentLabor = intent.getParcelableExtra(Common.KEY_LABOR_SELECTED);
+
             btn_next_step.setEnabled(true);
             setButtonColor();
         }

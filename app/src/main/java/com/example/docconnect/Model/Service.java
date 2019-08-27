@@ -4,7 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Service implements Parcelable {
-    private  String name, description, price, serviceId;
+    private String name, description, serviceId;
+    private Long price;
 
     public Service() {
     }
@@ -12,7 +13,7 @@ public class Service implements Parcelable {
     protected Service(Parcel in) {
         name = in.readString();
         description = in.readString();
-        price = in.readString();
+        price = in.readLong();
         serviceId = in.readString();
     }
 
@@ -32,11 +33,11 @@ public class Service implements Parcelable {
         this.description = description;
     }
 
-    public String getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
@@ -69,7 +70,7 @@ public class Service implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(description);
-        dest.writeString(price);
+        dest.writeLong(price);
         dest.writeString(serviceId);
     }
 }

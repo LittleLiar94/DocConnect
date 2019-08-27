@@ -96,13 +96,9 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ISmal
 
 //            loadUserBooking();
 //            countCartItem();
-
-
         }
 
         return view;
-
-
     }
 
     private void loadSmallBanner() {

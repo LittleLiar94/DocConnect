@@ -68,8 +68,8 @@ public class MyPremiseAdapter extends RecyclerView.Adapter<MyPremiseAdapter.MyVi
                 //Send Broadcast to tell BookingActivity to enable Button NEXT
                 // Part 27: Removed
                 Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-                intent.putExtra(Common.KEY_PREMISE_SAVE, premiseList.get(pos));
-//                intent.putExtra(Common.KEY_STEP, 1);
+                intent.putExtra(Common.KEY_PREMISE_SELECTED, premiseList.get(pos));
+                intent.putExtra(Common.KEY_STEP, 1);
                 // IMPORTANT! This tell the ServiceFragment that this premise is selected!
                 Common.premise = premiseList.get(pos).getPremiseId();
 
