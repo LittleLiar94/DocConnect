@@ -70,6 +70,12 @@ public class ServiceStep1Fragment extends Fragment implements IAllPremisesLoadLi
     RecyclerView recycler_premise;
     @BindView(R.id.chip_group_all_services)
     ChipGroup chip_group_all_services;
+    ChipGroup.OnCheckedChangeListener onCheckedChangeListener = new ChipGroup.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(ChipGroup chipGroup, int i) {
+
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,6 +163,9 @@ public class ServiceStep1Fragment extends Fragment implements IAllPremisesLoadLi
 
     @Override
     public void onAllServicesLoadSuccess(List<String> serviceIdList) {
+
+        final String[] selectedService = new String[0];
+
         //Load all the item in serviceList
         spinner_service.setItems(serviceIdList);
 
@@ -164,12 +173,20 @@ public class ServiceStep1Fragment extends Fragment implements IAllPremisesLoadLi
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 if(position > 0){
+//                    Toast.makeText(getContext(), "Item is "+item.toString(), Toast.LENGTH_SHORT).show();
                     loadPremiseBaseOnSelectedService(item.toString());
+                    Common.selectedService = item.toString();
+                    Common.KEY_SPINNER_SELECTED = true;
+                    Common.KEY_CHIP_SELECTED = false;
+
                 }
                 else // If "Please Choose City" is selected, all saloon gone
                     recycler_premise.setVisibility(View.GONE);
+                    Common.KEY_SPINNER_SELECTED = false;
+                    Common.KEY_CHIP_SELECTED = false;
             }
         });
+
 
 
         int pos=0;
@@ -178,34 +195,73 @@ public class ServiceStep1Fragment extends Fragment implements IAllPremisesLoadLi
         for(pos=1; pos<serviceIdList.size(); pos++) {
 //            tv_services.setText(serviceIdList.get(pos).getServiceId(""));
 
-            final Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
+//            Chip item = (Chip) inflater.inflate(R.layout.chip_item, null);
+            Chip item = new Chip(getContext());
             item.setText(serviceIdList.get(pos));
             item.setTag(pos);
 //            item.setClickable(true);
             item.setCloseIconVisible(false);
             item.setCheckable(true);
+            item.setCheckedIconVisible(false);
             item.setSingleLine(true);
+
+            // Check if spinner has been selected
+            if(item.getText().toString() == Common.selectedService){
+                item.setChipBackgroundColorResource(R.color.colorPrimary);
+                item.setTextColor(getActivity().getResources().getColor(android.R.color.white));
+            }
 
             item.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if(item.isChecked()){
-                        Toast.makeText(getContext(), "Checked "+serviceIdList, Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getContext(), "Checked "+serviceIdList, Toast.LENGTH_SHORT).show();
                         item.setChipBackgroundColorResource(R.color.colorPrimary);
                         item.setTextColor(getActivity().getResources().getColor(android.R.color.white));
+                        loadPremiseBaseOnSelectedService(item.getText().toString());
+                        Common.KEY_SPINNER_SELECTED = false;
+                        Common.KEY_CHIP_SELECTED = true;
+
                     }
                     else {
                         item.setChipBackgroundColorResource(R.color.divider);
                         item.setTextColor(getActivity().getResources().getColor(R.color.colorTextHeavy));
+                        Common.KEY_SPINNER_SELECTED = false;
+                        Common.KEY_CHIP_SELECTED = false;
                     }
                 }
             });
 
 
+
             chip_group_all_services.addView(item);
+
         }
         // TODO: Implement chipgroup check id.
+        chip_group_all_services.setSingleSelection(true);
+        chip_group_all_services.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(ChipGroup chipGroup, int i) {
+                Chip item = chipGroup.findViewById(i);
+
+                if (item != null)
+                {
+
+//                    Toast.makeText(getContext(), "Item is "+item.getText().toString(), Toast.LENGTH_SHORT).show();
+//                    item.setChipBackgroundColorResource(R.color.colorPrimary);
+//                    item.setTextColor(getActivity().getResources().getColor(android.R.color.white));
+//                    loadPremiseBaseOnSelectedService(item.getText().toString());
+                }
+                else
+                {
+
+//                    item.setChipBackgroundColorResource(R.color.divider);
+//                    item.setTextColor(getActivity().getResources().getColor(R.color.colorTextHeavy));
+                }
+            }
+        });
     }
+
 
     private void loadPremiseBaseOnSelectedService(String serviceId) {
         dialog.show();

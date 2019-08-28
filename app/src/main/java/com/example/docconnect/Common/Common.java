@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.example.docconnect.Model.Labor;
 import com.example.docconnect.Model.Premise;
+import com.example.docconnect.Model.Service;
 import com.example.docconnect.Model.User;
 
 import java.security.cert.CertPath;
@@ -23,13 +24,17 @@ public class Common {
     public static final String KEY_LABOR_LOAD_DONE = "LABOR_LOAD_DONE"; // Labors
     public static final String KEY_LABOR_SELECTED = "LABOR_SELECTED";
     public static final String KEY_STEP = "STEP";
+    public static boolean KEY_CHIP_SELECTED = false;
+    public static boolean KEY_SPINNER_SELECTED = false;
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Premise currentPremise;
     public static Labor currentLabor;
+    public static String selectedService;
     public static int step = 0;
     public static String premise = ""; // This is premiseId
     public static String service = ""; // This is serviceId
+
 
 
     public class KEY_STEP {
