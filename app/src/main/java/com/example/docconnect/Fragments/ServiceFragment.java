@@ -104,9 +104,8 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
 
             }
             else if(Common.step == 2) { // Pick time slot
-//                if(Common.currentPremise != null)
-//                    loadTimeSlotOfBarber(Common.currentPremise.getPremiseId());
-
+                if(Common.currentLabor != null)
+                    loadTimeSlotOfBarber(Common.currentLabor.getLaborId());
             }
             else if(Common.step == 3) { // Confirm
 //                if(Common.currentPremise != -1)
@@ -114,6 +113,11 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
             }
             viewPager.setCurrentItem(Common.step);
         }
+    }
+
+    private void loadTimeSlotOfBarber(String laborId) {
+        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
+        localBroadcastManager.sendBroadcast(intent);
     }
 
     //This will be called in Step2
@@ -157,7 +161,7 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
                     });
         }
     }
-
+    //This will be called in Step2
     private void loadSelectedPremiseInfo(String premiseId) {
         dialog.show();
 
@@ -198,7 +202,7 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
 
         }
     }
-
+    //This will be called in Step2
     private void loadSelectedPremiseLabor(String premiseId) {
         dialog.show();
 
