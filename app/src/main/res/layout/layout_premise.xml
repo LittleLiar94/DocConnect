@@ -2,7 +2,12 @@
 <androidx.cardview.widget.CardView
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    app:cardCornerRadius="4dp"
+    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardElevation="6dp"
+    app:cardMaxElevation="6dp"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:id="@+id/card_premise"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -14,10 +19,12 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:padding="2dp"
+            android:id="@+id/image_premise"
             android:src="@drawable/ic_launcher_foreground"
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="130dp" />
 
         <TextView
             android:id="@+id/txt_premise_name"
@@ -29,7 +36,7 @@
             android:layout_height="wrap_content" />
 
         <LinearLayout
-            android:padding="5dp"
+            android:padding="0dp"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -68,7 +75,6 @@
             android:text="Description #1"
             android:textSize="13dp"
             android:gravity="center_horizontal"
-            android:background="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

@@ -17,7 +17,10 @@ import android.widget.Toast;
 import com.example.docconnect.Adapter.MyTimeSlotAdapter;
 import com.example.docconnect.Common.Common;
 import com.example.docconnect.Common.SpacesItemDecoration;
+import com.example.docconnect.Interface.IAllPremisesInfoLoadListener;
 import com.example.docconnect.Interface.ITimeSlotLoadListener;
+import com.example.docconnect.Model.Premise;
+import com.example.docconnect.Model.Service;
 import com.example.docconnect.Model.TimeSlot;
 import com.example.docconnect.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,7 +53,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import dmax.dialog.SpotsDialog;
 
-public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListener {
+public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListener, IAllPremisesInfoLoadListener {
 
     static ServiceStep3Fragment instance;
     public static ServiceStep3Fragment getInstance(){
@@ -77,6 +81,8 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
 
     AlertDialog dialog;
 
+    IAllPremisesInfoLoadListener iAllPremisesInfoLoadListener;
+
     @BindView(R.id.btn_date)
     Button btn_date;
 
@@ -96,7 +102,7 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
 
                 // Load the time slot of selected Date
                 loadAvailableTimeSlotOfBarber(Common.currentLabor.getLaborId(),
-                        simpleDateFormat.format(SelectedDate.getTime()));
+                        Common.currentPremise, simpleDateFormat.format(SelectedDate.getTime()));
             }
         },selectedYear, selectedMonth, selectedDayOfMonh);
 
@@ -113,9 +119,29 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
         public void onReceive(Context context, Intent intent) {
 //            Calendar date = Calendar.getInstance();
 //            date.add(Calendar.DATE, 0); // Add current date
-            loadAvailableTimeSlotOfBarber(Common.currentLabor.getLaborId(),
-                    simpleDateFormat.format(SelectedDate.getTime()));
-        }
+
+//            Premise permiseInfo = intent.getParcelableExtra(Common.KEY_TIME_SLOT);
+
+//            iAllPremisesInfoLoadListener.onAllPremisesInfoLoadSuccess((Premise) permiseInfo);
+
+//            loadAvailableTimeSlotOfBarber(Common.currentLabor.getLaborId(), permiseInfo,
+//                    simpleDateFormat.format(new Date()));
+
+//            MyLaborAdapter adapter = new MyLaborAdapter(getContext(),laborArrayList);
+//            recycler_labor.setAdapter(adapter);
+
+//            if(Common.KEY_INFO_LOAD_DONE.equals(intent.getAction()))
+//            {
+                if(Common.KEY_DISPLAY_TIME_SLOT.equals(intent.getAction())) {
+                    Premise permiseInfo = intent.getParcelableExtra(Common.KEY_DISPLAY_TIME_SLOT);
+                    //                Toast.makeText(context, ""+serviceArrayList.get(0).getServiceId(""), Toast.LENGTH_SHORT).show();
+
+
+                    loadAvailableTimeSlotOfBarber(Common.currentLabor.getLaborId(), permiseInfo,
+                            simpleDateFormat.format(new Date()));
+                }
+            }
+//        }
     };
 
     @Override
@@ -124,13 +150,13 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
         super.onDestroy();
     }
 
-    private void loadAvailableTimeSlotOfBarber(String laborId, String selectedDate) {
+    private void loadAvailableTimeSlotOfBarber(String laborId, Premise permiseInfo, String selectedDate) {
         dialog.show();
 
         // /AllPremises/Premise1/AllLabors/Ali
         laborDoc = FirebaseFirestore.getInstance()
                 .collection("AllPremises")
-                .document(Common.currentPremise.getPremiseId())
+                .document(Common.currentPremiseTemp.getPremiseId())
                 .collection("AllLabors")
                 .document(laborId);
 
@@ -145,7 +171,7 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
                         // If not created, return empty
                         CollectionReference date = FirebaseFirestore.getInstance()
                                 .collection("AllPremises")
-                                .document(Common.currentPremise.getPremiseId())
+                                .document(Common.currentPremiseTemp.getPremiseId())
                                 .collection("AllLabors")
                                 .document(Common.currentLabor.getLaborId())
                                 .collection(selectedDate); // bookDate is date simple formate with dd_MM_yyy
@@ -154,17 +180,18 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful()){
                                     QuerySnapshot querySnapshot = task.getResult();
-                                    if(querySnapshot.isEmpty())  // If no appointment
-
-                                        iTimeSlotLoadListener.onTimeSlotLoadEmpty();
-
+                                    if(querySnapshot.isEmpty())
+                                    {  // If no appointment
+                                        List<TimeSlot> timeSlots = new ArrayList<>();
+                                        iTimeSlotLoadListener.onTimeSlotLoadEmpty(timeSlots, permiseInfo);
+                                    }
                                     else {
                                         // If appointment available
                                         List<TimeSlot>timeSlots = new ArrayList<>();
                                         for(QueryDocumentSnapshot document:task.getResult())
                                             timeSlots.add(document.toObject(TimeSlot.class));
 
-                                        iTimeSlotLoadListener.onTimeSlotLoadSuccess(timeSlots);
+                                        iTimeSlotLoadListener.onTimeSlotLoadSuccess(timeSlots,permiseInfo);
                                     }
                                 }
                             }
@@ -186,6 +213,7 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
         super.onCreate(savedInstanceState);
         inflater = LayoutInflater.from(getContext());
         iTimeSlotLoadListener =this;
+        iAllPremisesInfoLoadListener=this;
 
         SelectedDate = Calendar.getInstance();
         currentDate = Calendar.getInstance();
@@ -199,6 +227,7 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
         //Listen
         localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
         localBroadcastManager.registerReceiver(displayTimeSlot, new IntentFilter(Common.KEY_DISPLAY_TIME_SLOT));
+//        localBroadcastManager.registerReceiver(displayTimeSlot, new IntentFilter(Common.KEY_INFO_LOAD_DONE));
 
         dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
     }
@@ -226,8 +255,8 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
     }
 
     @Override
-    public void onTimeSlotLoadSuccess(List<TimeSlot> timeSlotList) {
-        MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext(), timeSlotList);
+    public void onTimeSlotLoadSuccess(List<TimeSlot> timeSlotList, Premise premiseInfo) {
+        MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext(), timeSlotList, premiseInfo);
         recycler_time_slot.setAdapter(adapter);
 
         dialog.dismiss();
@@ -240,10 +269,20 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
     }
 
     @Override
-    public void onTimeSlotLoadEmpty() {
-        MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext());
+    public void onTimeSlotLoadEmpty(List<TimeSlot> timeSlotList, Premise premiseInfo) {
+        MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext(), premiseInfo);
         recycler_time_slot.setAdapter(adapter);
 
         dialog.dismiss();
+    }
+
+    @Override
+    public void onAllPremisesInfoLoadSuccess(Premise premiseInfo) {
+
+    }
+
+    @Override
+    public void onAllPremisesInfoLoadFailed(String message) {
+
     }
 }

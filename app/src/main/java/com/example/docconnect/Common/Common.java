@@ -9,6 +9,7 @@ import com.example.docconnect.Model.Service;
 import com.example.docconnect.Model.User;
 
 import java.security.cert.CertPath;
+import java.util.Calendar;
 
 public class Common {
 
@@ -28,16 +29,24 @@ public class Common {
     public static final int TIME_SLOT_TOTAL = 11;
     public static final String KEY_TIME_SLOT = "TIME_SLOT";
     public static final Object DISABLE_TAG = "DISABLE"; //Disable time slot tag
+    public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING" ;
     public static boolean KEY_CHIP_SELECTED = false;
     public static boolean KEY_SPINNER_SELECTED = false;
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
-    public static Premise currentPremise;
+    public static Premise currentPremise; // This is used to register premise from AllPremises
+    public static Premise currentPremiseTemp; // This is used to register premise from AllServices
     public static Labor currentLabor;
     public static String selectedService;
     public static int step = 0;
     public static String premise = ""; // This is premiseId
     public static String service = ""; // This is serviceId
+    public static String labor = ""; // This is laborId
+    public static String timeSlot;
+    public static int currentTimeSlot = -1;
+    public static Calendar bookingDate = Calendar.getInstance();;
+    public static String openingHours;
+
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot){

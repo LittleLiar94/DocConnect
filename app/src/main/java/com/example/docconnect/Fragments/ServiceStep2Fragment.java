@@ -24,7 +24,10 @@ import com.example.docconnect.R;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -65,6 +68,8 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
     TextView tv_description;
     @BindView(R.id.tv_address)
     TextView tv_address;
+    @BindView(R.id.tv_phone)
+    TextView tv_phone;
     @BindView(R.id.tv_rating)
     TextView tv_rating;
     @BindView(R.id.tv_ratingTimes)
@@ -73,7 +78,20 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
     ChipGroup chip_group_services;
     @BindView(R.id.rating_premise)
     RatingBar rating_premise;
-
+    @BindView(R.id.tv_mon_opening_hours)
+    TextView tv_mon_opening_hours;
+    @BindView(R.id.tv_tue_opening_hours)
+    TextView tv_tue_opening_hours;
+    @BindView(R.id.tv_wed_opening_hours)
+    TextView tv_wed_opening_hours;
+    @BindView(R.id.tv_thur_opening_hours)
+    TextView tv_thur_opening_hours;
+    @BindView(R.id.tv_fri_opening_hours)
+    TextView tv_fri_opening_hours;
+    @BindView(R.id.tv_sat_opening_hours)
+    TextView tv_sat_opening_hours;
+    @BindView(R.id.tv_sun_opening_hours)
+    TextView tv_sun_opening_hours;
 
 
     // Part 27:
@@ -198,12 +216,58 @@ public class ServiceStep2Fragment extends Fragment implements IAllServicesLoadLi
     @Override
     public void onAllPremisesInfoLoadSuccess(Premise premiseInfo) {
         tv_title.setText(premiseInfo.getName());
+        tv_phone.setText(premiseInfo.getPhone());
         tv_address.setText(premiseInfo.getLocation());
         tv_description.setText(premiseInfo.getDescription());
         tv_rating.setText(premiseInfo.getRating().toString());
         tv_ratingTimes.setText("("+premiseInfo.getRatingTimes().toString()+")");
-        rating_premise.setRating((float)premiseInfo.getRating() / premiseInfo.getRatingTimes() );
+        rating_premise.setRating((float)premiseInfo.getRating() / premiseInfo.getRatingTimes());
 
+        // Belows logic is used to calculate the close time.
+        SimpleDateFormat inDateFormat = new SimpleDateFormat("h:mmaa");
+        long timeSlotDiffInHour = 0;
+        Date openTime=null, openTime2 = null, lastTimeSlot = null, closeTime = new Date();
+        try {
+            openTime = inDateFormat.parse(premiseInfo.getTimeSlot().get(0));
+            openTime2 = inDateFormat.parse(premiseInfo.getTimeSlot().get(1));
+            lastTimeSlot = inDateFormat.parse(premiseInfo.getTimeSlot().get(premiseInfo.getTimeSlot().size()-1));
+            timeSlotDiffInHour = (openTime2.getTime() - openTime.getTime()); // Get the different between timeSlot
+            closeTime.setTime(lastTimeSlot.getTime()+timeSlotDiffInHour);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Common.openingHours = (inDateFormat.format(openTime)+" - "+inDateFormat.format(closeTime))
+                .replace("AM", "am").replace("PM", "pm");
+
+        int pos = 0;
+        if(premiseInfo.getOpeningDayOfWeek().get(pos))
+            tv_mon_opening_hours.setText(Common.openingHours);
+        else
+            tv_mon_opening_hours.setText("Closed");
+        if(premiseInfo.getOpeningDayOfWeek().get(pos+1))
+            tv_tue_opening_hours.setText(Common.openingHours);
+        else
+            tv_tue_opening_hours.setText("Closed");
+        if(premiseInfo.getOpeningDayOfWeek().get(pos+2))
+            tv_wed_opening_hours.setText(Common.openingHours);
+        else
+            tv_wed_opening_hours.setText("Closed");
+        if(premiseInfo.getOpeningDayOfWeek().get(pos+3))
+            tv_thur_opening_hours.setText(Common.openingHours);
+        else
+            tv_thur_opening_hours.setText("Closed");
+        if(premiseInfo.getOpeningDayOfWeek().get(pos+4))
+            tv_fri_opening_hours.setText(Common.openingHours);
+        else
+            tv_fri_opening_hours.setText("Closed");
+        if(premiseInfo.getOpeningDayOfWeek().get(pos+5))
+            tv_sat_opening_hours.setText(Common.openingHours);
+        else
+            tv_sat_opening_hours.setText("Closed");
+        if(premiseInfo.getOpeningDayOfWeek().get(pos+6))
+            tv_sun_opening_hours.setText(Common.openingHours);
+        else
+            tv_sun_opening_hours.setText("Closed");
     }
 
     @Override

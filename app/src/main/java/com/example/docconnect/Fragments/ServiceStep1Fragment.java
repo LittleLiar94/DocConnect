@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.docconnect.Adapter.MyPremiseAdapter;
+import com.example.docconnect.Adapter.SmallBannerAdapter;
 import com.example.docconnect.Common.Common;
 import com.example.docconnect.Common.SpacesItemDecoration;
 import com.example.docconnect.Interface.IAllPremisesLoadListener;
@@ -36,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -276,17 +278,17 @@ public class ServiceStep1Fragment extends Fragment implements IAllPremisesLoadLi
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                List<Premise> list = new ArrayList<>();
+                List<Premise> permiseList = new ArrayList<>();
                 if(task.isSuccessful())
                 {
                     for(QueryDocumentSnapshot documentSnapshot:task.getResult())
                     {
                         Premise premise = documentSnapshot.toObject(Premise.class);
                         premise.setPremiseId(documentSnapshot.getId());
-                        list.add(premise);
+                        permiseList.add(premise);
                     }
 
-                    iAllPremisesLoadListener.onAllPremisesLoadSuccess(list);
+                    iAllPremisesLoadListener.onAllPremisesLoadSuccess(permiseList);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -318,7 +320,14 @@ public class ServiceStep1Fragment extends Fragment implements IAllPremisesLoadLi
         MyPremiseAdapter adapter = new MyPremiseAdapter(getActivity(),premiseList);
         recycler_premise.setAdapter(adapter);
         recycler_premise.setVisibility(View.VISIBLE);
+
+        recycler_premise.setHasFixedSize(true);
+//        recycler_premise.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false));
+
         dialog.dismiss();
+
+
+
 
     }
 

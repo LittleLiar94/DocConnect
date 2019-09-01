@@ -34,13 +34,10 @@ import com.example.docconnect.Interface.IAllPremisesLoadListener;
 import com.example.docconnect.Model.Labor;
 import com.example.docconnect.Model.Premise;
 import com.example.docconnect.Model.Service;
-import com.example.docconnect.Model.User;
 import com.example.docconnect.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.chip.ChipGroup;
-import com.google.common.eventbus.EventBus;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -97,27 +94,81 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
 
             Common.step++; //Increment
             if(Common.step == 1){ // After premise is selected
-                if(Common.currentPremise != null)
-                    loadSelectedPremiseServices(Common.currentPremise.getPremiseId());
-                    loadSelectedPremiseInfo(Common.currentPremise.getPremiseId());
-                    loadSelectedPremiseLabor(Common.currentPremise.getPremiseId());
+                if(Common.currentPremiseTemp != null)
+                    // Using the premiseId obtain from AllService, retrieve all details of selected
+                    // premises in AllPremises
+                    loadSelectedPremiseServices(Common.currentPremiseTemp.getPremiseId());
+                    loadSelectedPremiseInfo(Common.currentPremiseTemp.getPremiseId());
+                    loadSelectedPremiseLabor(Common.currentPremiseTemp.getPremiseId());
+//                    loadSelectedPremiseServices(Common.currentPremise.getPremiseId());
+//                    loadSelectedPremiseInfo(Common.currentPremise.getPremiseId());
+//                    loadSelectedPremiseLabor(Common.currentPremise.getPremiseId());
 
             }
             else if(Common.step == 2) { // Pick time slot
                 if(Common.currentLabor != null)
-                    loadTimeSlotOfBarber(Common.currentLabor.getLaborId());
+                    loadTimeSlotOfLabor(Common.currentLabor.getLaborId());
             }
             else if(Common.step == 3) { // Confirm
-//                if(Common.currentPremise != -1)
-//                    confirmBooking();
+                if(Common.currentTimeSlot != -1)
+                    confirmBooking();
             }
             viewPager.setCurrentItem(Common.step);
         }
     }
 
-    private void loadTimeSlotOfBarber(String laborId) {
-        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
-        localBroadcastManager.sendBroadcast(intent);
+    private void confirmBooking() {
+            Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
+            intent.putExtra(Common.KEY_CONFIRM_BOOKING, Common.currentTimeSlot);
+            localBroadcastManager.sendBroadcast(intent);
+    }
+
+    //This will be called in Step3
+    private void loadTimeSlotOfLabor(String laborId) {
+//        dialog.show();
+//
+//        // If the a labor is selected in step2, load all the timeslot info of that particular labor.
+        if(!TextUtils.isEmpty(Common.labor)){
+//
+//            premiseServiceRef = FirebaseFirestore.getInstance()
+//                    .collection("AllPremises")
+//                    .document(Common.premise)
+//                    .collection("AllOpeningDetails")
+//                    .document(laborId);
+//
+//            // Get all the services available in premiseId
+//            premiseServiceRef
+//                    .get()
+//                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                            List<Service> services = new ArrayList<>();
+//                            for(QueryDocumentSnapshot serviceSnapShot:task.getResult()) {
+//                                Service service = serviceSnapShot.toObject(Service.class);
+//                                service.setServiceId(serviceSnapShot.getId()); // Get serviceId
+//                                services.add(service);
+//                            }
+//
+//                            // Send Broadcast to Bookingstep2Fragment to load Recycler
+//                            Intent intent = new Intent(Common.KEY_SERVICE_LOAD_DONE);
+//                            intent.putParcelableArrayListExtra(Common.KEY_SERVICE_LOAD_DONE, (ArrayList<? extends Parcelable>) services);
+//                            localBroadcastManager.sendBroadcast(intent);
+//                            dialog.dismiss();
+//
+//                        }
+//                    })
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            dialog.dismiss();
+//                        }
+//                    });
+            Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
+            intent.putExtra(Common.KEY_DISPLAY_TIME_SLOT, Common.currentPremise);
+            localBroadcastManager.sendBroadcast(intent);
+        }
+
+
     }
 
     //This will be called in Step2
@@ -183,11 +234,17 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
                             premiseInfo.setName(infoSnapshot.getString("name"));
                             premiseInfo.setDescription(infoSnapshot.getString("description"));
                             premiseInfo.setLocation(infoSnapshot.getString("location"));
+                            premiseInfo.setPhone(infoSnapshot.getString("phone"));
                             premiseInfo.setRating(infoSnapshot.getLong("rating"));
                             premiseInfo.setRatingTimes(infoSnapshot.getLong("ratingTimes"));
+                            premiseInfo.setOpeningDayOfWeek((List<Boolean>) infoSnapshot.get("openingDayOfWeek"));
+                            premiseInfo.setTimeSlot((List<String>) infoSnapshot.get("timeSlot"));
+
                             Intent intent = new Intent(Common.KEY_INFO_LOAD_DONE);
                             intent.putExtra(Common.KEY_INFO_LOAD_DONE, premiseInfo);
                             localBroadcastManager.sendBroadcast(intent);
+
+                            Common.currentPremise = premiseInfo;
 
                             dialog.dismiss();
                         }
@@ -243,16 +300,24 @@ public class ServiceFragment extends Fragment implements IAllPremisesLoadListene
                     });
         }
     }
+
+
     //Broadcast Receiver
     private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
             int step = intent.getIntExtra(Common.KEY_STEP,0);
-            if (step == 1)
-                Common.currentPremise = intent.getParcelableExtra(Common.KEY_PREMISE_SELECTED);
+            if (step == 1){
+                // This current Premise is obtain from AllServices, NOT AllPremises
+                Common.currentPremiseTemp = intent.getParcelableExtra(Common.KEY_PREMISE_SELECTED);
+            }
+
             else if (step == 2)
                 Common.currentLabor = intent.getParcelableExtra(Common.KEY_LABOR_SELECTED);
+            else if (step == 3)
+                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT, -1);
+
 
             btn_next_step.setEnabled(true);
             setButtonColor();

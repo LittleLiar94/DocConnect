@@ -74,6 +74,10 @@ public class MyLaborAdapter extends RecyclerView.Adapter<MyLaborAdapter.MyViewHo
                 Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
                 intent.putExtra(Common.KEY_LABOR_SELECTED, laborList.get(pos));
                 intent.putExtra(Common.KEY_STEP, 2);
+
+                // IMPORTANT! This tell the ServiceFragment that this labor is selected!
+                Common.labor = laborList.get(pos).getLaborId();
+
                 localBroadcastManager.sendBroadcast(intent);
             }
         });
