@@ -66,9 +66,9 @@ public class MyPremiseAdapter extends RecyclerView.Adapter<MyPremiseAdapter.MyVi
                     cardView.setMaxCardElevation(36);
                     cardView.setElevation(24);
                     cardView.setRadius(40);
-                    cardView.setTranslationX(-3);
-                    cardView.setTranslationY(-3);
-                    cardView.setTranslationZ(-3);
+                    cardView.setTranslationX(-1);
+                    cardView.setTranslationY(-1);
+                    cardView.setTranslationZ(-1);
                     myViewHolder.txt_premise_name.setTextColor(context.getResources().getColor(android.R.color.black));
                     myViewHolder.txt_premise_description.setTextColor(context.getResources().getColor(android.R.color.black));
                 }
@@ -81,9 +81,9 @@ public class MyPremiseAdapter extends RecyclerView.Adapter<MyPremiseAdapter.MyVi
                         .getColor(R.color.colorPrimary));
                 myViewHolder.card_premise.setElevation(24);
                 myViewHolder.card_premise.setMaxCardElevation(36);
-                myViewHolder.card_premise.setTranslationX(3);
-                myViewHolder.card_premise.setTranslationY(3);
-                myViewHolder.card_premise.setTranslationZ(3);
+                myViewHolder.card_premise.setTranslationX(1);
+                myViewHolder.card_premise.setTranslationY(1);
+                myViewHolder.card_premise.setTranslationZ(1);
                 myViewHolder.card_premise.setRadius(40);
 
                 //Send Broadcast to tell BookingActivity to enable Button NEXT

@@ -9,6 +9,7 @@ import com.example.docconnect.Model.Service;
 import com.example.docconnect.Model.User;
 
 import java.security.cert.CertPath;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Common {
@@ -46,6 +47,7 @@ public class Common {
     public static int currentTimeSlot = -1;
     public static Calendar bookingDate = Calendar.getInstance();;
     public static String openingHours;
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy"); //Only use when need  format key
 
 
     public static String convertTimeSlotToString(int slot) {

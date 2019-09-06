@@ -103,6 +103,8 @@ public class ServiceStep3Fragment extends Fragment implements ITimeSlotLoadListe
                 // Load the time slot of selected Date
                 loadAvailableTimeSlotOfBarber(Common.currentLabor.getLaborId(),
                         Common.currentPremise, simpleDateFormat.format(SelectedDate.getTime()));
+
+                Common.bookingDate = SelectedDate;
             }
         },selectedYear, selectedMonth, selectedDayOfMonh);
 

@@ -2,29 +2,39 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="8dp"
     android:layout_marginBottom="16dp">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:orientation="vertical"
-        android:background="@color/colorPrimaryLight"
+        android:elevation="20dp"
+        app:cardMaxElevation="25dp"
+        app:cardCornerRadius="10dp"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:text="Premise 1"
+            android:textAllCaps="true"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <ImageView
-            android:src="@drawable/logo"
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <LinearLayout
             android:orientation="vertical"
-
             android:background="@drawable/rounded_dialog"
-            android:elevation="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -39,6 +49,7 @@
 
             <TextView
                 android:text="Booking Information"
+                android:padding="5dp"
                 android:textAllCaps="true"
                 android:textStyle="bold"
                 android:layout_gravity="center_horizontal"
@@ -99,7 +110,9 @@
 
             <TextView
                 android:id="@+id/txt_premise_name"
-                android:text="Premise #1"
+                android:text="About us"
+                android:padding="5dp"
+                android:layout_gravity="center_horizontal"
                 android:textAllCaps="true"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
@@ -107,6 +120,7 @@
 
 
             <LinearLayout
+                android:visibility="gone"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -206,5 +220,5 @@
 
 
         </LinearLayout>
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </ScrollView>
